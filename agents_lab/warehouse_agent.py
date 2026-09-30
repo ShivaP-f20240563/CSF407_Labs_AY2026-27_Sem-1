@@ -51,17 +51,22 @@ class Warehouse:
     """The environment: a static, fully observable, deterministic grid."""
 
     def __init__(self, text: str):
-        lines = text.strip("\n").splitlines()
-        self.grid: List[List[str]] = [list(line) for line in lines]
-        self.rows, self.cols = len(self.grid), len(self.grid[0])
+        lines = [line.rstrip("\n") for line in text.strip("\n").splitlines()]
+        if not lines:
+            raise ValueError("Empty map")
+        width = max(len(line) for line in lines)
+        # Pad ragged rows with walls so every row has the same width.
+        self.grid: List[List[str]] = [list(line.ljust(width, "#")) for line in lines]
+        self.rows, self.cols = len(self.grid), width
         self.start = self._find("S")
         self.goal = self._find("G")
 
     def _find(self, symbol: str) -> Position:
-        for r in range(self.rows):
-            for c in range(self.cols):
-                if self.grid[r][c] == symbol:
-                    return (r, c)
+        found = [(r, c) for r in range(self.rows) for c in range(self.cols)
+                 if self.grid[r][c] == symbol]
+        if len(found) != 1:
+            raise ValueError(f"Map must contain exactly one '{symbol}', found {len(found)}")
+        return found[0]
 
     def is_free(self, pos: Position) -> bool:
         r, c = pos
