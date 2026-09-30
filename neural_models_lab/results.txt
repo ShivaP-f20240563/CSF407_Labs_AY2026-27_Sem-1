@@ -1,0 +1,84 @@
+====================================================================== 
+0. LINEAR BASELINE (single affine map + sigmoid)
+loss 0.7309 -> 0.6931  (ln 2 = 0.6931)
+probabilities: tensor([0.5000, 0.5000, 0.5000, 0.5000])
+=> stuck near p=0.5 for all inputs: no line separates XOR.
+
+====================================================================== 
+A. BASIC LEARNING CHECK  (2-2-1, tanh, Adam, seed 0)
+initial loss 0.7102   final loss 0.000108
+probabilities   : tensor([0.0001, 0.9998, 0.9999, 0.0001])
+thresholded     : tensor([0, 1, 1, 0])
+correct         : 4/4
+
+====================================================================== 
+B. BACKPROPAGATION CHECK
+dL/dW1 (mean loss over 4 examples):
+ tensor([[0.0182, 0.0358],
+        [0.0170, 0.0028]])
+mean of 4 per-example gradients:
+ tensor([[0.0182, 0.0358],
+        [0.0170, 0.0028]])
+max |difference| = 0.0
+finite difference dL/dW1[0,0] = 0.018180 vs autograd 0.018180
+
+====================================================================== 
+C. SYMMETRY EXPERIMENT  (identical initial weights)
+-- hidden = tanh, every weight and bias initialised to 0.0
+step    0: row0=[0.0, 0.0]  row1=[0.0, 0.0]  identical=True
+step    1: row0=[0.0, 0.0]  row1=[0.0, 0.0]  identical=True
+step   10: row0=[0.0, 0.0]  row1=[0.0, 0.0]  identical=True
+step  100: row0=[0.0, 0.0]  row1=[0.0, 0.0]  identical=True
+step 2999: row0=[0.0, 0.0]  row1=[0.0, 0.0]  identical=True
+final loss 0.6931, correct 2/4
+
+-- hidden = sigmoid, every weight and bias initialised to 0.0
+step    0: row0=[0.0, 0.0]  row1=[0.0, 0.0]  identical=True
+step    1: row0=[0.0, 0.0]  row1=[0.0, 0.0]  identical=True
+step   10: row0=[0.0, 0.0]  row1=[0.0, 0.0]  identical=True
+step  100: row0=[0.0, 0.0]  row1=[0.0, 0.0]  identical=True
+step 2999: row0=[0.0, 0.0]  row1=[0.0, 0.0]  identical=True
+final loss 0.6931, correct 2/4
+
+-- hidden = tanh, every weight and bias initialised to 0.5
+step    0: row0=[0.5, 0.5]  row1=[0.5, 0.5]  identical=True
+step    1: row0=[0.45, 0.45]  row1=[0.45, 0.45]  identical=True
+step   10: row0=[0.0205, 0.0205]  row1=[0.0205, 0.0205]  identical=True
+step  100: row0=[-3.9355, -3.9355]  row1=[-3.9355, -3.9355]  identical=True
+step 2999: row0=[-7.7726, -7.7726]  row1=[-7.7726, -7.7726]  identical=True
+final loss 0.4774, correct 3/4
+
+====================================================================== 
+D. ACTIVATION EXPERIMENT  (seed 0, only activation changes)
+activation   final loss   4/4?  ||grad W1|| @step10
+sigmoid        0.000284    yes             0.000703
+tanh           0.000108    yes             0.013164
+relu           0.693147    2/4             0.004450
+
+Diagnostic: hidden pre-activations a = W1 x + b1 after training
+sigmoid  a = [[-5.164, 5.551], [4.848, 16.884], [-15.274, -5.188], [-5.262, 6.145]]
+tanh     a = [[2.473, 2.499], [-2.6, 7.858], [7.644, -2.55], [2.571, 2.809]]
+relu     a = [[0.128, 0.276], [0.121, 0.391], [0.325, 0.049], [0.318, 0.163]]
+
+====================================================================== 
+R. REPEATED RUNS  (20 seeds each; runs solving XOR 4/4)
+optimiser     hidden  sigmoid     tanh     relu
+Adam lr=0.05       2     7/20    10/20     6/20
+SGD  lr=0.5        2    16/20    14/20     5/20
+Adam lr=0.05       4    19/20    18/20    10/20
+
+====================================================================== 
+E. THREE-CLASS EXTENSION  (2-2-3, softmax + cross-entropy)
+final weight matrix shape: (3, 2) (3 x 2)
+loss 1.0240 -> 0.000030
+logits per example: (4, 3)
+class probabilities (rows = (0,0),(0,1),(1,0),(1,1)):
+ tensor([[1.0000, 0.0000, 0.0000],
+        [0.0000, 1.0000, 0.0000],
+        [0.0000, 1.0000, 0.0000],
+        [0.0000, 0.0000, 1.0000]])
+predicted classes: [0, 1, 1, 2]  target: [0, 1, 1, 2]
+sum of probs for (0,1): 1.00000000
+softmax(z + 100) for (0,1): tensor([0.0000, 1.0000, 0.0000])  max diff: 8.131516293641283e-20
+max |dL/dz - (p - y)/N| = 3.3881317890172014e-21 
+
