@@ -141,15 +141,17 @@ def _reconstruct(parent: Dict[State, Tuple[Optional[State], Optional[str]]], nod
 # ---------------------------------------------------------------- A*
 def astar(problem: GridProblem, h: Heuristic = manhattan) -> SearchResult:
     start, goal = problem.initial, problem.goal
-    tie = count()                                   # FIFO tie-breaking among equal f
+    tie = count()                                   # final tie-breaker: insertion order
     g_cost: Dict[State, float] = {start: 0}
     parent: Dict[State, Tuple[Optional[State], Optional[str]]] = {start: (None, None)}
-    frontier = [(h(start, goal), next(tie), start)]  # priority queue ordered by f = g + h
+    h0 = h(start, goal)
+    # priority queue ordered by f = g + h; ties broken by smaller h (closer to goal)
+    frontier = [(h0, h0, next(tie), start)]
     closed = set()                                  # visited / expanded states
     expanded = 0
 
     while frontier:
-        f, _, s = heapq.heappop(frontier)           # select state with lowest f(n)
+        f, _, _, s = heapq.heappop(frontier)        # select state with lowest f(n)
         if s in closed:                             # stale duplicate entry
             continue
         closed.add(s)
@@ -163,8 +165,9 @@ def astar(problem: GridProblem, h: Heuristic = manhattan) -> SearchResult:
             if s2 not in closed and g2 < g_cost.get(s2, math.inf):
                 g_cost[s2] = g2
                 parent[s2] = (s, a)
-                f2 = g2 + h(s2, goal)               # f(n) = g(n) + h(n)
-                heapq.heappush(frontier, (f2, next(tie), s2))
+                h2 = h(s2, goal)                    # h(n)
+                f2 = g2 + h2                        # f(n) = g(n) + h(n)
+                heapq.heappush(frontier, (f2, h2, next(tie), s2))
     return SearchResult(f"A*[{h.__name__}]", False, expanded=expanded)
 
 

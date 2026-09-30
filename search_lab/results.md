@@ -14,7 +14,7 @@
 |---|---|---|
 | Solution found | True | True |
 | Path length | 23 | 23 |
-| States expanded | 117 | 117 |
+| States expanded | 117 | 44 |
 
 ## Task 6 - heuristic investigation (lab warehouse)
 
@@ -32,10 +32,10 @@
 | Algorithm | Found | Path length | States expanded |
 |---|---|---|---|
 | BFS (reference) | True | 23 | 117 |
-| A* h=manhattan | True | 23 | 117 |
+| A* h=manhattan | True | 23 | 44 |
 | A* h=zero | True | 23 | 117 |
-| A* h=euclidean | True | 23 | 117 |
-| A* h=2x_manhattan | True | 27 | 31 |
+| A* h=euclidean | True | 23 | 96 |
+| A* h=2x_manhattan | True | 27 | 30 |
 | A* h=5x_manhattan | True | 27 | 29 |
 
 ## Task 6 - heuristic investigation (trap map)
@@ -43,11 +43,11 @@
 | Algorithm | Found | Path length | States expanded |
 |---|---|---|---|
 | BFS (reference) | True | 16 | 55 |
-| A* h=manhattan | True | 16 | 53 |
+| A* h=manhattan | True | 16 | 49 |
 | A* h=zero | True | 16 | 55 |
-| A* h=euclidean | True | 16 | 53 |
-| A* h=2x_manhattan | True | 24 | 39 |
-| A* h=5x_manhattan | True | 24 | 29 |
+| A* h=euclidean | True | 16 | 48 |
+| A* h=2x_manhattan | True | 24 | 36 |
+| A* h=5x_manhattan | True | 24 | 28 |
 
 ## Extra maps
 
