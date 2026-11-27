@@ -83,5 +83,54 @@ class FirstOrderTests(unittest.TestCase):
         self.assertEqual(toks[:5], ["the", "cat", "sat", "on", "the"])
 
 
+class SecondOrderTests(unittest.TestCase):
+    def setUp(self):
+        self.lm = AutoregressiveLM(CORPUS, order=2)
+
+    def test_rows_sum_to_one(self):
+        for ctx, row in self.lm.probabilities.items():
+            self.assertEqual(len(ctx), 2)
+            self.assertAlmostEqual(sum(row.values()), 1.0, places=12, msg=ctx)
+
+    def test_counts_match_independent_triple_count(self):
+        oracle = Counter()
+        for s in CORPUS:
+            t = [START, START] + s.split() + [END]
+            oracle.update(zip(t, t[1:], t[2:]))
+        mine = Counter({c + (w,): n for c, row in self.lm.counts.items() for w, n in row.items()})
+        self.assertEqual(mine, oracle)
+
+    def test_context_disambiguates_the(self):
+        self.assertEqual(self.lm.distribution("on the"), {"mat": 0.5, "rug": 0.5})
+        self.assertEqual(self.lm.distribution("to the"), {"park": 1.0})
+        self.assertEqual(self.lm.distribution([]), {"the": 1.0})  # (<START>, <START>)
+
+    def test_only_last_two_tokens_matter(self):
+        self.assertEqual(self.lm.distribution("the dog sat on the"),
+                         self.lm.distribution("on the"))
+
+    def test_unseen_pair_context(self):
+        self.assertEqual(self.lm.distribution("sat the"), {})  # both words known, pair unseen
+
+    def test_greedy_terminates(self):
+        self.assertEqual(self.lm.generate("greedy"), (["the", "cat", "sat", "on", "the", "mat"],
+                                                      "end"))
+
+    def test_marginalising_matches_first_order(self):
+        # sum_a C(a, b, c) over a = C(b, c): triples collapse to the first-order pair counts.
+        first = AutoregressiveLM(CORPUS, order=1)
+        pairs = Counter()
+        for (a, b), row in self.lm.counts.items():
+            for c, n in row.items():
+                pairs[(b, c)] += n
+        for (b,), row in first.counts.items():
+            for c, n in row.items():
+                self.assertEqual(pairs[(b, c)], n)
+
+    def test_bad_order(self):
+        with self.assertRaises(ValueError):
+            AutoregressiveLM(CORPUS, order=0)
+
+
 if __name__ == "__main__":
     unittest.main()

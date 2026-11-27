@@ -1,8 +1,10 @@
 """Autoregressive n-gram language model as a chain-structured Bayesian network.
 
-First order:  P(x_1..x_T) = prod_t P(x_t | x_{t-1}),  x_0 = <START>
+First order:  P(x_1..x_T) = prod_t P(x_t | x_{t-1}),            x_0 = <START>
+Second order: P(x_1..x_T) = prod_t P(x_t | x_{t-2}, x_{t-1}),  x_{-1} = x_0 = <START>
 Each CPT row P(. | context) is estimated by counting:
-    P(w_j | w_i) = C(w_i, w_j) / sum_k C(w_i, w_k)
+    P(w_j | w_i) = C(w_i, w_j) / sum_k C(w_i, w_k)          (order 1, pair counts)
+    P(w_k | w_i, w_j) = C(w_i, w_j, w_k) / sum_m C(w_i, w_j, w_m)   (order 2, triple counts)
 Standard library only (no ML library, no pretrained model).
 """
 import random
@@ -25,8 +27,10 @@ def tokenize(sentence):
 
 
 class AutoregressiveLM:
-    def __init__(self, sentences):
-        self.order = 1
+    def __init__(self, sentences, order=1):
+        if order < 1:
+            raise ValueError("order must be >= 1")
+        self.order = order
         # counts[context][next] = C(context, next); context is a tuple of the previous tokens
         self.counts = defaultdict(Counter)
         for s in sentences:
@@ -97,12 +101,19 @@ class AutoregressiveLM:
         return p
 
 
+    def num_parameters(self):
+        """Distinct non-zero CPT entries actually estimated."""
+        return sum(len(row) for row in self.counts.values())
+
+    def vocab(self):
+        return sorted({w for row in self.counts.values() for w in row} - {END})
+
+
 if __name__ == "__main__":
-    lm = AutoregressiveLM(CORPUS)
-    for w in ["the", "cat", "dog", "sat", "ran"]:
-        lm.show(w)
-        print(f"    argmax: {lm.predict(w)}")
-    rng = random.Random(0)
-    for _ in range(5):
-        toks, why = lm.generate("sample", rng)
-        print(" ".join(toks), f"[{why}]")
+    for order, contexts in [(1, ["the", "cat", "dog", "sat", "ran"]),
+                            (2, ["<START> the", "the cat", "on the", "to the", "cat ran"])]:
+        lm = AutoregressiveLM(CORPUS, order)
+        print(f"===== order {order} =====")
+        for c in contexts:
+            lm.show(c)
+            print(f"    argmax: {lm.predict(c)}")
