@@ -4,8 +4,11 @@ A state is a frozenset of ground propositions (closed world: absent = false).
 An action is applicable in S iff S |= Pre(a): every positive precondition is in S
 and no negative precondition is in S. Applying it gives S' = (S - delete) | add.
 
-Run:  python planner.py
+Run:  python planner.py                       # all tests and domains
+      python planner.py door "PickKey, Move(A,B), Unlock, Move(B,C)"   # validate a plan
 """
+import re
+import sys
 from collections import deque
 from dataclasses import dataclass, field
 
@@ -168,5 +171,20 @@ def main():
     print(f"  {'VALID' if ok else 'INVALID'}: {msg}\n")
 
 
+def cli_validate(domain, plan_text):
+    """Validate an LLM-proposed plan, e.g. `python planner.py door "PickKey, Move(A,B)"`."""
+    I, A, G = {"door": (DOOR_I, door_actions(), DOOR_G),
+               "warehouse": (WAREHOUSE_I, warehouse_actions(), WAREHOUSE_G)}[domain]
+    steps = [x.strip() for x in re.split(r",\s*(?![^()]*\))", plan_text) if x.strip()]
+    ok, msg, states = validate(I, steps, A, G)
+    shortest = len(bfs_plan(I, A, G)[0])
+    for i, s in enumerate(states):
+        print(f"  S{i}: {fmt(s)}")
+    print(f"{'VALID' if ok else 'INVALID'}: {msg} (shortest BFS plan: {shortest})")
+    return ok
+
+
 if __name__ == "__main__":
+    if len(sys.argv) == 3:
+        sys.exit(0 if cli_validate(sys.argv[1], sys.argv[2]) else 1)
     main()
