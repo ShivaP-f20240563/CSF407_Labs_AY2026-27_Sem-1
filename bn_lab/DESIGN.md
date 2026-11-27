@@ -25,7 +25,7 @@ This is the first-order Markov property. The joint factorises as P(X₁) ∏ₜ 
 
 | Item | Specification |
 |---|---|
-| Variables | Xₜ ∈ V = 9 words ∪ {`<START>`, `<END>`}, lower-cased, whitespace tokens |
+| Variables | Xₜ ∈ V = 10 words ∪ {`<START>`, `<END>`}, lower-cased, whitespace tokens |
 | Dependencies | First order: Xₜ₋₁ → Xₜ. Second order: (Xₜ₋₂, Xₜ₋₁) → Xₜ |
 | Distribution | P(wⱼ \| wᵢ) = C(wᵢ,wⱼ) / Σₖ C(wᵢ,wₖ) (maximum likelihood by counting) |
 | P(X₁) | Treated as P(X₁ \| `<START>`), so `<START>` is the root and conditions X₁ |
@@ -61,5 +61,5 @@ this corpus, because it also precedes mat, rug and park.
 - **Unknown contexts.** A word outside V, such as `bird`, has no CPT row at all. The model must handle
   this explicitly (see Question 7).
 
-Of the 10 × 10 = 100 possible (context, next) cells (contexts: `<START>` + 9 words; next: 9 words +
+Of the 11 × 11 = 121 possible (context, next) cells (contexts: `<START>` + 10 words; next: 10 words +
 `<END>`), only **17 are non-zero**. The CPT is very sparse even for this tiny corpus.

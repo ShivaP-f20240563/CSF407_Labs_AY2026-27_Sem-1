@@ -1,0 +1,44 @@
+# order 1: 20 sampled sentences (seed 407)
+ 1. the cat sat on the park
+ 2. the cat sat on the rug
+ 3. the cat ran to the dog sat on the park
+ 4. the dog sat on the rug
+ 5. the dog ran to the cat ran to the dog ran to the rug
+ 6. the cat sat on the rug
+ 7. the cat sat on the dog sat on the mat
+ 8. the cat ran to the mat
+ 9. the cat sat on the dog sat on the dog ran to the cat ran to the rug
+10. the cat sat on the mat
+11. the park
+12. the rug
+13. the cat ran to the cat sat on the mat
+14. the mat
+15. the rug
+16. the rug
+17. the dog sat on the dog ran to the park
+18. the park
+19. the mat
+20. the rug
+
+# order 2: 20 sampled sentences (seed 407)
+ 1. the dog ran to the park
+ 2. the cat ran to the park
+ 3. the cat sat on the mat
+ 4. the cat sat on the mat
+ 5. the dog sat on the rug
+ 6. the cat sat on the mat
+ 7. the dog sat on the rug
+ 8. the dog sat on the mat
+ 9. the cat ran to the park
+10. the dog sat on the rug
+11. the dog ran to the park
+12. the dog sat on the mat
+13. the dog ran to the park
+14. the cat sat on the rug
+15. the cat sat on the mat
+16. the dog ran to the park
+17. the dog sat on the rug
+18. the dog sat on the mat
+19. the cat ran to the park
+20. the cat ran to the park
+
