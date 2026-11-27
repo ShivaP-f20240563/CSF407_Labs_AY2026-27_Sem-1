@@ -9,11 +9,13 @@ report. This mirrors the "specify → generate → test → validate" workflow t
 | 1 | [`agents-lab`](../../tree/agents-lab/agents_lab) | Goal-based agent for warehouse navigation (BFS) | `warehouse_agent.py`, `REPORT.md` |
 | 2 | [`search-lab`](../../tree/search-lab/search_lab) | A* vs BFS, heuristic admissibility experiments | `search_agent.py`, `experiments.py`, `REPORT.md` |
 | 3 | [`neural-models-lab`](../../tree/neural-models-lab/neural_models_lab) | XOR with a 2-2-1 network: backprop, symmetry, activations, softmax | `xor_lab.py`, `REPORT.md` |
+| 4 | [`logic-lab`](../../tree/logic-lab/logic_lab) | STRIPS planning: logic + BFS, plan validator, Prolog verifier | `planner.py`, `planner.pl`, `REPORT.md` |
+| 5 | [`bn-lab`](../../tree/bn-lab/bn_lab) | Bayesian networks as autoregressive LMs: 1st/2nd-order n-grams | `ngram_lm.py`, `experiments.py`, `REPORT.md` |
 
 ```bash
 git clone https://github.com/ShivaP-f20240563/CSF407_Labs_AY2026-27_Sem-1.git
 cd CSF407_Labs_AY2026-27_Sem-1
-git checkout agents-lab          # or search-lab / neural-models-lab
+git checkout agents-lab          # or search-lab / neural-models-lab / logic-lab / bn-lab
 ```
 
 ## Lab 1: Goal-Based Agent (`agents-lab`)
@@ -64,6 +66,35 @@ pip install -r requirements.txt
 cd neural_models_lab && python xor_lab.py
 ```
 
+## Lab 4: Logical Planning (`logic-lab`)
+
+A warehouse robot must deliver a package from A to C, and a second domain has a locked door and a key.
+
+- States are sets of propositions. An action applies iff S ⊨ Pre(a), and S' = (S − Del) ∪ Add. BFS returns a shortest plan.
+- An independent `validate()` re-executes any plan and reports the first unsatisfied precondition.
+  - The handout's hinted plan fails at step 2.
+  - `Move(A,B), Unlock, Move(B,C)` fails at `Unlock`, because `HasKey` is false.
+- 10 tests: solvable (4 steps), no `PickUp` / no `PickKey` gives "No plan found", and irrelevant robot-only actions.
+- SWI-Prolog checks moves and move sequences against the warehouse facts.
+
+```bash
+cd logic_lab && python planner.py && python -m unittest -v
+swipl -q -s planner.pl -g run_queries -t halt
+```
+
+## Lab 5: Bayesian Networks and Autoregressive LMs (`bn-lab`)
+
+| Experiment | Key result |
+|---|---|
+| CPT by counting | 17 non-zero entries of 121, and they match the hand table exactly |
+| Invariant tests | Rows sum to 1, counts match an oracle, sampling frequencies match the CPT, triples marginalise to pairs |
+| Greedy vs sampling | 1st-order greedy loops (`the cat sat on the cat …`); 2nd-order greedy ends |
+| 1st vs 2nd order | 188 vs 6 distinct sentences in 1000 samples; 0 vs 106 unseen contexts; 2nd order only reproduces training data |
+
+```bash
+cd bn_lab && python experiments.py && python -m unittest -v
+```
+
 ## Repository structure
 
 ```
@@ -75,6 +106,10 @@ search-lab
 └── search_lab/          DESIGN.md · search_agent.py · test_search_agent.py · experiments.py · results.md · PROMPTS.md · REPORT.md
 neural-models-lab
 └── neural_models_lab/   DESIGN.md · xor_lab.py · results.txt · PROMPTS.md · REPORT.md
+logic-lab
+└── logic_lab/           DESIGN.md · planner.py · test_planner.py · planner.pl · results.txt · prolog_results.txt · PROMPTS.md · REPORT.md
+bn-lab
+└── bn_lab/              DESIGN.md · ngram_lm.py · test_ngram_lm.py · experiments.py · results.txt · generated_sentences.txt · PROMPTS.md · REPORT.md
 ```
 
 Every lab folder contains the same documents:
@@ -88,7 +123,7 @@ Every lab folder contains the same documents:
 ## Requirements
 
 - Python 3.9+
-- Labs 1 and 2 use only the standard library.
+- Labs 1, 2, 4 and 5 use only the standard library. Lab 4's optional Prolog part needs SWI-Prolog.
 - Lab 3 needs `torch` (CPU is enough) and `numpy`.
 
 ## Author
