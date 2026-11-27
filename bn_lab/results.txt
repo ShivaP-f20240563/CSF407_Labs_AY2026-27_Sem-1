@@ -1,0 +1,88 @@
+-- Part VII: sum_v P(v | w) for every context (order 1)
+   <START>          1.000000
+   cat              1.000000
+   dog              1.000000
+   mat              1.000000
+   on               1.000000
+   park             1.000000
+   ran              1.000000
+   rug              1.000000
+   sat              1.000000
+   the              1.000000
+   to               1.000000
+-- Part VII: sum_v P(v | w) for every context (order 2)
+   <START> <START>  1.000000
+   <START> the      1.000000
+   cat ran          1.000000
+   cat sat          1.000000
+   dog ran          1.000000
+   dog sat          1.000000
+   on the           1.000000
+   ran to           1.000000
+   sat on           1.000000
+   the cat          1.000000
+   the dog          1.000000
+   the mat          1.000000
+   the park         1.000000
+   the rug          1.000000
+   to the           1.000000
+
+-- Part VIII: next-word distributions and argmax (order 1)
+   P(. | <START>     ) = {the=1.000}  ->  argmax = the
+   P(. | the         ) = {cat=0.250, dog=0.250, mat=0.167, rug=0.167, park=0.167}  ->  argmax = cat
+   P(. | cat         ) = {sat=0.667, ran=0.333}  ->  argmax = sat
+   P(. | dog         ) = {sat=0.667, ran=0.333}  ->  argmax = sat
+   P(. | sat         ) = {on=1.000}  ->  argmax = on
+   P(. | ran         ) = {to=1.000}  ->  argmax = to
+   P(. | on          ) = {the=1.000}  ->  argmax = the
+   P(. | to          ) = {the=1.000}  ->  argmax = the
+   P(. | mat         ) = {<END>=1.000}  ->  argmax = <END>
+   P(. | bird        ) = {}  ->  argmax = None
+-- Part VIII: next-word distributions and argmax (order 2)
+   P(. | <START> the ) = {cat=0.500, dog=0.500}  ->  argmax = cat
+   P(. | the cat     ) = {sat=0.667, ran=0.333}  ->  argmax = sat
+   P(. | the dog     ) = {sat=0.667, ran=0.333}  ->  argmax = sat
+   P(. | on the      ) = {mat=0.500, rug=0.500}  ->  argmax = mat
+   P(. | to the      ) = {park=1.000}  ->  argmax = park
+   P(. | dog ran     ) = {to=1.000}  ->  argmax = to
+
+-- Part X: greedy vs sampling (5 each)
+   order 1, greedy:
+      the cat sat on the cat sat on the cat sat on the cat sat on the cat sat on  [max_len]
+      the cat sat on the cat sat on the cat sat on the cat sat on the cat sat on  [max_len]
+      the cat sat on the cat sat on the cat sat on the cat sat on the cat sat on  [max_len]
+      the cat sat on the cat sat on the cat sat on the cat sat on the cat sat on  [max_len]
+      the cat sat on the cat sat on the cat sat on the cat sat on the cat sat on  [max_len]
+   order 1, sampling:
+      the cat sat on the park
+      the cat sat on the rug
+      the cat ran to the dog sat on the park
+      the dog sat on the rug
+      the dog ran to the cat ran to the dog ran to the rug
+   order 2, greedy:
+      the cat sat on the mat
+      the cat sat on the mat
+      the cat sat on the mat
+      the cat sat on the mat
+      the cat sat on the mat
+   order 2, sampling:
+      the cat sat on the rug
+      the cat sat on the mat
+      the cat sat on the mat
+      the cat sat on the mat
+      the cat ran to the park
+
+-- Part XIII: first- vs second-order comparison
+   metric                                             order 1   order 2
+   observed contexts (CPT rows)                            11        15
+   possible contexts |V_ctx|^k                             11       121
+   zero-probability (unseen) contexts                       0       106
+   full CPT size (cells)                                  121      1331
+   free parameters of full CPT (cells - rows)             110      1210
+   non-zero estimated parameters                           17        19
+   distinct sentences in 1000 samples                     188         6
+   novel (not in training) distinct sentences             182         0
+   share of samples that are training sentences         0.137     1.000
+   mean sentence length (tokens)                         6.33      6.00
+   max sentence length (tokens)                            46         6
+   distinct bigrams in samples                             13        13
