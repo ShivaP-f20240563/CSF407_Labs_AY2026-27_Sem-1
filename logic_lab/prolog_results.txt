@@ -1,0 +1,8 @@
+?- can_move(a,b).                       true
+?- can_move(a,c).                       false
+?- valid_move(a,b).                     true
+?- valid_move(b,c).                     true
+?- valid_move(a,c).                     false
+?- valid_plan(a,[move(a,b),move(b,c)]). true
+?- valid_plan(a,[move(a,c)]).           false
+?- reduce_speed.                        true

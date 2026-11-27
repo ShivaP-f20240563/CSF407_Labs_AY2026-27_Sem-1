@@ -1,0 +1,41 @@
+== Test A: warehouse ==
+I = {At(Package,A), At(Robot,A)}
+G = {At(Package,C)}
+Plan (4 actions, 6 states expanded):
+  S0: {At(Package,A), At(Robot,A)}
+  PickUp(Package,A)    -> S1: {At(Robot,A), Holding(Package)}
+  Move(A,B)            -> S2: {At(Robot,B), Holding(Package)}
+  Move(B,C)            -> S3: {At(Robot,C), Holding(Package)}
+  Drop(Package,C)      -> S4: {At(Package,C), At(Robot,C)}
+
+== Test B: warehouse without PickUp ==
+I = {At(Package,A), At(Robot,A)}
+G = {At(Package,C)}
+No plan found (3 states expanded)
+
+== Test C: robot-only goal At(Robot,C) (contrast with Test A) ==
+I = {At(Package,A), At(Robot,A)}
+G = {At(Robot,C)}
+Plan (2 actions, 2 states expanded):
+  S0: {At(Package,A), At(Robot,A)}
+  Move(A,B)            -> S1: {At(Package,A), At(Robot,B)}
+  Move(B,C)            -> S2: {At(Package,A), At(Robot,C)}
+
+== Task 6(b): locked door ==
+I = {At(A), KeyAt(A)}
+G = {At(C)}
+Plan (4 actions, 5 states expanded):
+  S0: {At(A), KeyAt(A)}
+  PickKey              -> S1: {At(A), HasKey}
+  Move(A,B)            -> S2: {At(B), HasKey}
+  Unlock               -> S3: {At(B), HasKey, Unlocked}
+  Move(B,C)            -> S4: {At(C), HasKey, Unlocked}
+
+== Task 6(c): locked door without PickKey ==
+I = {At(A), KeyAt(A)}
+G = {At(C)}
+No plan found (2 states expanded)
+
+== Task 6(d): validate Move(A,B), Unlock, Move(B,C) ==
+  INVALID: step 2: Unlock not applicable; unsatisfied: HasKey
+
